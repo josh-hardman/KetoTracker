@@ -45,6 +45,17 @@ export default function App() {
 
   useEffect(() => { loadAll() }, [loadAll])
 
+  // Realtime: re-fetch whenever foods or daily_logs change in Supabase
+  useEffect(() => {
+    const channel = supabase
+      .channel('db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'foods' }, () => loadAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_logs' }, () => loadAll())
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [loadAll])
+
   // Derived state
   const filteredLogs = logs.filter(l => l.date === selectedDate)
 

@@ -25,6 +25,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
       {logs.length === 0 ? (
         <div className="empty">Nothing logged for this day.</div>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -56,6 +57,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
             })}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

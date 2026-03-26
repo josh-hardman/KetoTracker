@@ -6,14 +6,14 @@
   --fat: #d4a843; --pro: #8bc4a0; --carb: #c47c6a; --cal: #a08cbf;
 }
 body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; min-height: 100vh; }
-header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 14px; }
+header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 14px; max-width: 1400px; margin: 0 auto; }
 .logo { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 300; letter-spacing: -0.02em; }
 .logo em { font-style: italic; color: var(--fat); }
 .datebadge { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 .refresh-btn { margin-left: auto; background: none; border: 1px solid var(--border2); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 5px 12px; border-radius: 4px; cursor: pointer; transition: color 0.15s; }
 .refresh-btn:hover { color: var(--text); }
 .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.main { padding: 20px 28px; max-width: 1100px; }
+.main { padding: 20px 28px; max-width: 1400px; margin: 0 auto; }
 .date-tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
 .tab { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 11px; border-radius: 3px; cursor: pointer; transition: all 0.15s; }
 .tab:hover { border-color: var(--border2); color: var(--text); }
@@ -41,6 +41,7 @@ header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); displa
 .trow:last-child { margin-bottom: 0; }
 .tk { color: var(--muted); }
 .divider { border-top: 1px solid var(--border); margin: 8px 0; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; }
 th { padding: 7px 13px; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); font-weight: 400; }
 th.r, td.r { text-align: right; }
@@ -64,8 +65,79 @@ tr:hover td { background: var(--surface2); }
 .err { color: var(--carb); font-size: 12px; margin-bottom: 12px; padding: 9px 13px; background: rgba(196,124,106,0.08); border: 1px solid rgba(196,124,106,0.2); border-radius: 5px; }
 .spin { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--fat); border-radius: 50%; animation: spin .7s linear infinite; margin-right: 7px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@media (max-width: 680px) {
-  .main { padding: 14px; } header { padding: 16px 14px; }
-  .macro-row { grid-template-columns: repeat(2,1fr); }
+/* ── Large screens / TV (1600px+) ── */
+@media (min-width: 1600px) {
+  .main { max-width: 1800px; padding: 32px 48px; }
+  header { max-width: 1800px; padding: 32px 48px 20px; }
+  body { font-size: 15px; }
+  .logo { font-size: 28px; }
+  .datebadge { font-size: 13px; }
+  .refresh-btn { font-size: 13px; padding: 7px 16px; }
+  .date-tabs { gap: 8px; margin-bottom: 26px; }
+  .tab { font-size: 13px; padding: 6px 15px; }
+  .slabel { font-size: 12px; margin-bottom: 14px; padding-bottom: 9px; }
+  .macro-row { gap: 16px; margin-bottom: 28px; }
+  .mcard { padding: 20px; border-radius: 8px; }
+  .mlabel { font-size: 12px; margin-bottom: 9px; }
+  .mval { font-size: 36px; margin-bottom: 6px; }
+  .munit { font-size: 13px; }
+  .mbar-track { margin-top: 12px; height: 4px; }
+  .mpct { font-size: 12px; margin-top: 6px; }
+  .two-col { gap: 22px; margin-bottom: 28px; }
+  .panel { border-radius: 8px; }
+  .phdr { padding: 14px 18px; font-size: 12px; }
+  .trow { font-size: 13px; margin-bottom: 7px; }
+  th { padding: 10px 16px; font-size: 12px; }
+  td { padding: 11px 16px; font-size: 14px; }
+  .foods-grid { grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 12px; padding: 18px; }
+  .fcard { padding: 14px; border-radius: 7px; }
+  .fname { font-size: 14px; margin-bottom: 3px; }
+  .funit { font-size: 12px; margin-bottom: 11px; }
+  .pill { font-size: 12px; padding: 3px 8px; }
+}
+
+/* ── Extra-large / 4K TV (2200px+) ── */
+@media (min-width: 2200px) {
+  .main { max-width: 2400px; padding: 48px 72px; }
+  header { max-width: 2400px; padding: 40px 72px 24px; }
+  body { font-size: 18px; }
+  .logo { font-size: 34px; }
+  .mval { font-size: 48px; }
+  .macro-row { gap: 22px; }
+  .mcard { padding: 28px; }
+  .two-col { gap: 28px; }
+  th { padding: 13px 20px; font-size: 14px; }
+  td { padding: 14px 20px; font-size: 16px; }
+  .foods-grid { grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 16px; padding: 24px; }
+}
+
+/* ── Tablet (681px – 900px) ── */
+@media (max-width: 900px) {
+  .main { max-width: 100%; }
   .two-col { grid-template-columns: 1fr; }
+}
+
+/* ── Phone (≤680px) ── */
+@media (max-width: 680px) {
+  header { padding: 16px 14px; flex-wrap: wrap; }
+  .main { padding: 14px; }
+  .macro-row { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .mcard { padding: 12px; }
+  .mval { font-size: 22px; }
+  .two-col { grid-template-columns: 1fr; }
+  .foods-grid { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 7px; padding: 10px; }
+  .panel { border-radius: 5px; }
+  td { padding: 7px 10px; font-size: 11px; }
+  th { padding: 6px 10px; font-size: 9px; }
+}
+
+/* ── Small phone (≤400px) ── */
+@media (max-width: 400px) {
+  .macro-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mval { font-size: 19px; }
+  .mlabel { font-size: 9px; }
+  .tab { font-size: 10px; padding: 3px 8px; }
+  .foods-grid { grid-template-columns: 1fr 1fr; }
+  .fname { font-size: 11px; }
+  .pill { font-size: 9px; padding: 1px 5px; }
 }
