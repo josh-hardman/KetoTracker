@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ketoLog</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.3/supabase.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0e0c; --surface: #1a1916; --surface2: #232119;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+    --text: #f0ebe2; --muted: #8a8478;
+    --fat: #d4a843; --pro: #8bc4a0; --carb: #c47c6a; --cal: #a08cbf;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; min-height: 100vh; }
+  header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 14px; }
+  .logo { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 300; letter-spacing: -0.02em; }
+  .logo em { font-style: italic; color: var(--fat); }
+  .datebadge { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .refresh-btn { margin-left: auto; background: none; border: 1px solid var(--border2); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 5px 12px; border-radius: 4px; cursor: pointer; transition: color 0.15s; }
+  .refresh-btn:hover { color: var(--text); }
+  .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .main { padding: 20px 28px; max-width: 1100px; }
+  .date-tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 11px; border-radius: 3px; cursor: pointer; transition: all 0.15s; }
+  .tab:hover { border-color: var(--border2); color: var(--text); }
+  .tab.active { border-color: var(--fat); color: var(--fat); background: rgba(212,168,67,0.07); }
+  .slabel { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 11px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
+  .macro-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 11px; margin-bottom: 22px; }
+  .mcard { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 15px; position: relative; overflow: hidden; }
+  .mcard::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; }
+  .mcard.cal::before{background:var(--cal);} .mcard.fat::before{background:var(--fat);}
+  .mcard.pro::before{background:var(--pro);} .mcard.carb::before{background:var(--carb);}
+  .mlabel { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .mval { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+  .mcard.cal .mval{color:var(--cal);} .mcard.fat .mval{color:var(--fat);}
+  .mcard.pro .mval{color:var(--pro);} .mcard.carb .mval{color:var(--carb);}
+  .munit { font-size: 11px; color: var(--muted); }
+  .mbar-track { margin-top: 9px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .mbar { height: 100%; border-radius: 2px; transition: width 0.6s ease; width: 0%; }
+  .mcard.cal .mbar{background:var(--cal);} .mcard.fat .mbar{background:var(--fat);}
+  .mcard.pro .mbar{background:var(--pro);} .mcard.carb .mbar{background:var(--carb);}
+  .mpct { font-size: 10px; color: var(--muted); margin-top: 4px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; margin-bottom: 22px; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .phdr { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .trow { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; }
+  .trow:last-child { margin-bottom: 0; }
+  .tk { color: var(--muted); }
+  .divider { border-top: 1px solid var(--border); margin: 8px 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 7px 13px; font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); font-weight: 400; }
+  th.r, td.r { text-align: right; }
+  td { padding: 8px 13px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .sbadge { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 10px; color: var(--muted); margin-left: 5px; }
+  .tc { font-size: 10px; color: var(--muted); }
+  .foods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 9px; padding: 14px; }
+  .fcard { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 11px; }
+  .fname { font-size: 12px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .funit { font-size: 10px; color: var(--muted); margin-bottom: 9px; }
+  .pills { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pill { font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+  .p-cal{background:rgba(160,140,191,0.12);color:var(--cal);}
+  .p-fat{background:rgba(212,168,67,0.12);color:var(--fat);}
+  .p-pro{background:rgba(139,196,160,0.12);color:var(--pro);}
+  .p-carb{background:rgba(196,124,106,0.12);color:var(--carb);}
+  .empty { padding: 28px; text-align: center; color: var(--muted); font-size: 12px; }
+  .loading { padding: 26px; text-align: center; color: var(--muted); font-size: 11px; letter-spacing: 0.06em; }
+  .err { color: var(--carb); font-size: 12px; margin-bottom: 12px; padding: 9px 13px; background: rgba(196,124,106,0.08); border: 1px solid rgba(196,124,106,0.2); border-radius: 5px; }
+  .spin { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--fat); border-radius: 50%; animation: spin .7s linear infinite; margin-right: 7px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 680px) {
+    .main { padding: 14px; } header { padding: 16px 14px; }
+    .macro-row { grid-template-columns: repeat(2,1fr); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">keto<em>log</em></div>
+  <div class="datebadge" id="hdate"></div>
+  <button class="refresh-btn" id="rbtn" onclick="loadAll()">↻ refresh</button>
+</header>
+<div class="main">
+  <div class="date-tabs" id="tabs"></div>
+  <div class="slabel">macros</div>
+  <div id="errmsg"></div>
+  <div class="macro-row">
+    <div class="mcard cal"><div class="mlabel">Calories</div><div class="mval" id="v-cal">—</div><div class="munit">kcal</div><div class="mbar-track"><div class="mbar" id="b-cal"></div></div><div class="mpct" id="p-cal">of 3,100 target</div></div>
+    <div class="mcard fat"><div class="mlabel">Fat</div><div class="mval" id="v-fat">—</div><div class="munit">grams</div><div class="mbar-track"><div class="mbar" id="b-fat"></div></div><div class="mpct" id="p-fat">of 275g target</div></div>
+    <div class="mcard pro"><div class="mlabel">Protein</div><div class="mval" id="v-pro">—</div><div class="munit">grams</div><div class="mbar-track"><div class="mbar" id="b-pro"></div></div><div class="mpct" id="p-pro">of 135g target</div></div>
+    <div class="mcard carb"><div class="mlabel">Net carbs</div><div class="mval" id="v-carb">—</div><div class="munit">grams</div><div class="mbar-track"><div class="mbar" id="b-carb"></div></div><div class="mpct" id="p-carb">of 20g limit</div></div>
+  </div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="phdr">Protocol targets</div>
+      <div style="padding:14px">
+        <div class="trow"><span class="tk">Calories</span><span>3,000–3,200 kcal</span></div>
+        <div class="trow"><span class="tk">Fat</span><span>270–280g</span></div>
+        <div class="trow"><span class="tk">Protein</span><span>≤ 135g</span></div>
+        <div class="trow"><span class="tk">Net carbs</span><span>≤ 20g</span></div>
+        <div class="divider"></div>
+        <div class="trow"><span class="tk">GKI target</span><span>&lt; 6 (therapeutic)</span></div>
+        <div class="trow"><span class="tk">Fasting window</span><span>16–17 hrs</span></div>
+        <div class="trow"><span class="tk">Meal 1</span><span>~9am · ~1,400 kcal</span></div>
+        <div class="trow"><span class="tk">Meal 2</span><span>~3:30pm · ~1,600 kcal</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="phdr" id="log-hdr">Logged today</div>
+      <div id="log-body"><div class="loading"><span class="spin"></span>loading...</div></div>
+    </div>
+  </div>
+  <div class="slabel">Food database</div>
+  <div class="panel" style="margin-bottom:24px">
+    <div class="phdr" id="foods-hdr">All foods</div>
+    <div id="foods-body"><div class="loading"><span class="spin"></span>loading...</div></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://srzidqpiouzvgigbfmsh.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyemlkcXBpb3V6dmdpZ2JmbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDkxMjksImV4cCI6MjA5MDEyNTEyOX0.fPtlLgzQ5Ni16KqSVWiO7rJ2KOApY3CNUrPAqB3B-KI';
+const T = { cal:3100, fat:275, pro:135, carb:20 };
+
+let db, selDate = tod(), allLogs = [];
+
+function tod() { return new Date().toISOString().split('T')[0]; }
+function fmt(d) { return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+
+function initClient() {
+  const { createClient } = window.supabase;
+  db = createClient(SUPABASE_URL, SUPABASE_ANON);
+}
+
+function setMacros(totals) {
+  const {cal,fat,pro,carb} = totals;
+  document.getElementById('v-cal').textContent  = Math.round(cal);
+  document.getElementById('v-fat').textContent  = Math.round(fat);
+  document.getElementById('v-pro').textContent  = Math.round(pro);
+  document.getElementById('v-carb').textContent = carb.toFixed(1);
+  document.getElementById('b-cal').style.width  = Math.min(100,(cal /T.cal)*100)+'%';
+  document.getElementById('b-fat').style.width  = Math.min(100,(fat /T.fat)*100)+'%';
+  document.getElementById('b-pro').style.width  = Math.min(100,(pro /T.pro)*100)+'%';
+  document.getElementById('b-carb').style.width = Math.min(100,(carb/T.carb)*100)+'%';
+  document.getElementById('p-cal').textContent  = Math.round((cal /T.cal)*100)+'% of 3,100 target';
+  document.getElementById('p-fat').textContent  = Math.round((fat /T.fat)*100)+'% of 275g target';
+  document.getElementById('p-pro').textContent  = Math.round((pro /T.pro)*100)+'% of 135g target';
+  document.getElementById('p-carb').textContent = Math.round((carb/T.carb)*100)+'% of 20g limit';
+}
+
+function renderLogs(date) {
+  const logs = allLogs.filter(l => l.date === date);
+  const t = tod();
+  document.getElementById('log-hdr').textContent = date===t ? 'Logged today' : 'Logged · '+fmt(date);
+
+  const totals = logs.reduce((a,l) => {
+    const s = parseFloat(l.servings), f = l.foods;
+    a.cal  += parseFloat(f.calories)  * s;
+    a.fat  += parseFloat(f.fat)       * s;
+    a.pro  += parseFloat(f.protein)   * s;
+    a.carb += parseFloat(f.net_carbs) * s;
+    return a;
+  }, {cal:0,fat:0,pro:0,carb:0});
+  setMacros(totals);
+
+  if (!logs.length) {
+    document.getElementById('log-body').innerHTML = '<div class="empty">Nothing logged for this day.</div>';
+    return;
+  }
+  document.getElementById('log-body').innerHTML = `<table>
+    <thead><tr><th>Food</th><th>Time</th><th class="r">Cal</th><th class="r">Fat</th><th class="r">Prot</th><th class="r">Carbs</th></tr></thead>
+    <tbody>${logs.map(l => {
+      const s = parseFloat(l.servings), f = l.foods;
+      return `<tr>
+        <td>${f.name}${s!==1?`<span class="sbadge">×${s}</span>`:''}</td>
+        <td class="tc">${l.logged_at ? l.logged_at.slice(0,5) : '—'}</td>
+        <td class="r">${Math.round(parseFloat(f.calories)*s)}</td>
+        <td class="r">${Math.round(parseFloat(f.fat)*s)}g</td>
+        <td class="r">${Math.round(parseFloat(f.protein)*s)}g</td>
+        <td class="r">${(parseFloat(f.net_carbs)*s).toFixed(1)}g</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function buildTabs(logs) {
+  const t = tod();
+  const dates = [...new Set(logs.map(l=>l.date))].sort((a,b)=>b.localeCompare(a));
+  if (!dates.includes(t)) dates.unshift(t);
+  document.getElementById('tabs').innerHTML = dates.slice(0,7).map(d =>
+    `<button class="tab${d===selDate?' active':''}" onclick="selectDate('${d}')">${d===t?'today':fmt(d)}</button>`
+  ).join('');
+}
+
+function selectDate(d) {
+  selDate = d;
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim() === (d===tod()?'today':fmt(d)));
+  });
+  renderLogs(d);
+}
+
+function renderFoods(foods) {
+  document.getElementById('foods-hdr').textContent = `All foods · ${foods.length} items`;
+  if (!foods.length) { document.getElementById('foods-body').innerHTML='<div class="empty">No foods yet.</div>'; return; }
+  document.getElementById('foods-body').innerHTML = `<div class="foods-grid">${foods.map(f=>`
+    <div class="fcard">
+      <div class="fname" title="${f.name}">${f.name}</div>
+      <div class="funit">${f.unit}</div>
+      <div class="pills">
+        <span class="pill p-cal">${Math.round(f.calories)} cal</span>
+        <span class="pill p-fat">${parseFloat(f.fat)}g fat</span>
+        <span class="pill p-pro">${parseFloat(f.protein)}g pro</span>
+        <span class="pill p-carb">${parseFloat(f.net_carbs)}g carb</span>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+async function loadAll() {
+  const btn = document.getElementById('rbtn');
+  btn.disabled = true; btn.textContent = '↻ loading...';
+  document.getElementById('hdate').textContent = fmt(tod());
+  document.getElementById('errmsg').innerHTML = '';
+
+  try {
+    initClient();
+
+    const [{ data: foods, error: fe }, { data: logs, error: le }] = await Promise.all([
+      db.from('foods').select('id,name,unit,fat,protein,net_carbs,calories').order('name'),
+      db.from('daily_logs').select('date,servings,logged_at,foods(name,fat,protein,net_carbs,calories)').order('date', {ascending:false}).order('logged_at', {ascending:true})
+    ]);
+
+    if (fe) throw fe;
+    if (le) throw le;
+
+    renderFoods(foods || []);
+    allLogs = logs || [];
+    buildTabs(allLogs);
+    renderLogs(selDate);
+  } catch(err) {
+    document.getElementById('errmsg').innerHTML = `<div class="err">Error: ${err.message || JSON.stringify(err)}</div>`;
+    setMacros({cal:0,fat:0,pro:0,carb:0});
+    document.getElementById('log-body').innerHTML = '<div class="empty">Could not load data.</div>';
+    document.getElementById('foods-body').innerHTML = '<div class="empty">Could not load data.</div>';
+  }
+
+  btn.disabled = false; btn.textContent = '↻ refresh';
+}
+
+loadAll();
+</script>
+</body>
+</html>
