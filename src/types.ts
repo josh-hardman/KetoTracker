@@ -16,5 +16,6 @@ export interface DailyLog {
   date: string
   servings: number
   logged_at: string | null
+  created_at: string | null
   foods: Food
 }

@@ -1,46 +1,17 @@
 import { useState } from 'react'
 import type { DailyLog } from '../types'
+import { todayMT, fmtDate, fmtLogTime } from '../tz'
+import { tierClass, tierBadge } from '../therapeutic'
+import { CAT_COLORS } from '../constants'
 
 interface DailyLogTableProps {
   logs: DailyLog[]
   selectedDate: string
 }
 
-function today() {
-  return new Date().toISOString().split('T')[0]
-}
-
-function fmt(d: string) {
-  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
-    weekday: 'short', month: 'short', day: 'numeric'
-  })
-}
-
-function tierClass(tier: number | null | undefined): string {
-  if (!tier || tier < 3) return ''
-  return `tier-${tier}`
-}
-
-function tierBadge(tier: number | null | undefined): string | null {
-  if (tier === 5) return '✦'
-  if (tier === 4) return '·'
-  return null
-}
-
-const CAT_COLORS: Record<string, string> = {
-  protein:    '#a07070',
-  fat:        '#a08c5a',
-  vegetable:  '#6a9a7a',
-  fruit:      '#8a7098',
-  spice:      '#a07850',
-  cheese:     '#9a9060',
-  supplement: '#6878a0',
-  beverage:   '#5a8a8a',
-}
-
 export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps) {
-  const t = today()
-  const title = selectedDate === t ? 'Logged today' : `Logged · ${fmt(selectedDate)}`
+  const isToday = selectedDate === todayMT()
+  const title = isToday ? 'Logged today' : `Logged · ${fmtDate(selectedDate)}`
   const [tooltipIdx, setTooltipIdx] = useState<number | null>(null)
 
   return (
@@ -106,7 +77,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
                       </div>
                     )}
                   </td>
-                  <td className="tc">{l.logged_at ? l.logged_at.slice(0, 5) : '—'}</td>
+                  <td className="tc">{fmtLogTime(l)}</td>
                   <td className="r">{Math.round(f.calories * s)}</td>
                   <td className="r">{Math.round(f.fat * s)}g</td>
                   <td className="r">{Math.round(f.protein * s)}g</td>

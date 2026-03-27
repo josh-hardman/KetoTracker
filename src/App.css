@@ -39,6 +39,15 @@ header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); displa
 .mcard.cal .mbar{background:var(--cal);} .mcard.fat .mbar{background:var(--fat);}
 .mcard.pro .mbar{background:var(--pro);} .mcard.carb .mbar{background:var(--carb);}
 .mpct { font-size: 10px; color: var(--muted); margin-top: 4px; }
+.mcard-win.cal { border-color: rgba(160,140,191,0.3); box-shadow: 0 0 12px rgba(160,140,191,0.08); }
+.mcard-win.fat { border-color: rgba(212,168,67,0.3); box-shadow: 0 0 12px rgba(212,168,67,0.08); }
+.mcard-win.pro { border-color: rgba(139,196,160,0.3); box-shadow: 0 0 12px rgba(139,196,160,0.08); }
+.mcard-win.carb { border-color: rgba(196,124,106,0.3); box-shadow: 0 0 12px rgba(196,124,106,0.08); }
+.mcard-win.cal .mpct{color:var(--cal);} .mcard-win.fat .mpct{color:var(--fat);}
+.mcard-win.pro .mpct{color:var(--pro);} .mcard-win.carb .mpct{color:var(--carb);}
+.win-check { font-size: 11px; margin-left: 6px; letter-spacing: 0; }
+.mcard.cal .win-check{color:var(--cal);} .mcard.fat .win-check{color:var(--fat);}
+.mcard.pro .win-check{color:var(--pro);} .mcard.carb .win-check{color:var(--carb);}
 .two-col { display: grid; grid-template-columns: 1fr 1.4fr; gap: 16px; margin-bottom: 22px; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .phdr { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
