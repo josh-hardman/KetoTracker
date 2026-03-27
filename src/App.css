@@ -14,10 +14,15 @@ header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); displa
 .refresh-btn:hover { color: var(--text); }
 .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .main { padding: 20px 28px; max-width: 1400px; margin: 0 auto; }
-.date-tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
-.tab { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 11px; border-radius: 3px; cursor: pointer; transition: all 0.15s; }
-.tab:hover { border-color: var(--border2); color: var(--text); }
-.tab.active { border-color: var(--fat); color: var(--fat); background: rgba(212,168,67,0.07); }
+/* ── Date navigator ── */
+.date-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; }
+.date-arrow { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 22px; line-height: 1; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.date-arrow:hover:not(:disabled) { border-color: var(--border2); color: var(--text); }
+.date-arrow:disabled { opacity: 0.25; cursor: not-allowed; }
+.date-current { background: none; border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; padding: 6px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+.date-current:hover { border-color: var(--border2); }
+.date-current.is-today { border-color: var(--fat); }
+.today-badge { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fat); }
 .slabel { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 11px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
 .macro-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 11px; margin-bottom: 22px; }
 .mcard { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 15px; position: relative; overflow: hidden; }
@@ -50,6 +55,23 @@ tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--surface2); }
 .sbadge { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 10px; color: var(--muted); margin-left: 5px; }
 .tc { font-size: 10px; color: var(--muted); }
+/* ── Therapeutic tiers ── */
+tr.tier-5 td:first-child { box-shadow: inset 3px 0 0 #00ff88; }
+tr.tier-4 td:first-child { box-shadow: inset 3px 0 0 #a8c46a; }
+tr.tier-3 td:first-child { box-shadow: inset 3px 0 0 rgba(100,180,160,0.4); }
+tr.tier-5 td:first-child { color: #00ff88; }
+tr.tier-4 td:first-child { color: #c8d88a; }
+.tier-badge { margin-right: 5px; font-size: 10px; }
+.tier-badge.tier-5 { color: #00ff88; }
+.tier-badge.tier-4 { color: #a8c46a; }
+.cat-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-right: 6px; vertical-align: middle; opacity: 0.7; flex-shrink: 0; }
+.food-cell { position: relative; }
+.food-name { cursor: default; }
+.food-name.has-note { cursor: help; }
+.th-tooltip { position: absolute; left: 0; top: 100%; z-index: 10; margin-top: 4px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 10px 12px; max-width: 280px; min-width: 180px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); pointer-events: none; }
+.th-tooltip-note { font-size: 11px; color: #d0ccc4; line-height: 1.5; }
+.th-tooltip-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.th-tag { font-size: 9px; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 3px; background: rgba(0,255,136,0.08); color: rgba(0,255,136,0.7); border: 1px solid rgba(0,255,136,0.12); }
 .foods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 9px; padding: 14px; }
 .fcard { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 11px; }
 .fname { font-size: 12px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -65,6 +87,37 @@ tr:hover td { background: var(--surface2); }
 .err { color: var(--carb); font-size: 12px; margin-bottom: 12px; padding: 9px 13px; background: rgba(196,124,106,0.08); border: 1px solid rgba(196,124,106,0.2); border-radius: 5px; }
 .spin { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--border2); border-top-color: var(--fat); border-radius: 50%; animation: spin .7s linear infinite; margin-right: 7px; vertical-align: middle; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ── Trend charts ── */
+.trend-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 11px; margin-bottom: 22px; }
+.tchart { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px 10px; position: relative; overflow: hidden; }
+.tchart::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; }
+.tchart.cal::before{background:var(--cal);} .tchart.fat::before{background:var(--fat);}
+.tchart.pro::before{background:var(--pro);} .tchart.carb::before{background:var(--carb);}
+.tchart-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.tchart-body { display: flex; gap: 6px; }
+.tchart-yaxis { display: flex; flex-direction: column; justify-content: space-between; font-size: 9px; color: var(--muted); text-align: right; min-width: 28px; flex-shrink: 0; padding: 1px 0; }
+.tchart-plot { flex: 1; min-width: 0; position: relative; }
+.tchart-plot svg { display: block; width: 100%; height: 48px; }
+.tchart-hover-zone { position: absolute; inset: 0; z-index: 2; cursor: crosshair; touch-action: none; }
+.tchart-xaxis { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); margin-top: 3px; }
+.tcrosshair { stroke: var(--border2); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 3 2; }
+.tchart-tooltip { position: absolute; top: -6px; transform: translateX(-50%); background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 4px 8px; font-size: 10px; white-space: nowrap; pointer-events: none; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tt-date { color: var(--muted); font-size: 9px; }
+.tt-val { font-family: 'Fraunces', serif; font-weight: 600; font-size: 12px; }
+.tt-val.cal{color:var(--cal);} .tt-val.fat{color:var(--fat);}
+.tt-val.pro{color:var(--pro);} .tt-val.carb{color:var(--carb);}
+.tfill { opacity: 0.12; }
+.tfill.cal{fill:var(--cal);} .tfill.fat{fill:var(--fat);}
+.tfill.pro{fill:var(--pro);} .tfill.carb{fill:var(--carb);}
+.tline { fill: none; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.tline.cal{stroke:var(--cal);} .tline.fat{stroke:var(--fat);}
+.tline.pro{stroke:var(--pro);} .tline.carb{stroke:var(--carb);}
+.tdot { vector-effect: non-scaling-stroke; }
+.tdot.cal{fill:var(--cal);} .tdot.fat{fill:var(--fat);}
+.tdot.pro{fill:var(--pro);} .tdot.carb{fill:var(--carb);}
+.tchart-val { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; margin-top: 5px; }
+.tchart-val.cal{color:var(--cal);} .tchart-val.fat{color:var(--fat);}
+.tchart-val.pro{color:var(--pro);} .tchart-val.carb{color:var(--carb);}
 /* ── Large screens / TV (1600px+) ── */
 @media (min-width: 1600px) {
   .main { max-width: 1800px; padding: 32px 48px; }
@@ -73,8 +126,10 @@ tr:hover td { background: var(--surface2); }
   .logo { font-size: 28px; }
   .datebadge { font-size: 13px; }
   .refresh-btn { font-size: 13px; padding: 7px 16px; }
-  .date-tabs { gap: 8px; margin-bottom: 26px; }
-  .tab { font-size: 13px; padding: 6px 15px; }
+  .date-nav { gap: 16px; margin-bottom: 26px; }
+  .date-arrow { font-size: 28px; width: 40px; height: 40px; }
+  .date-current { font-size: 16px; padding: 8px 22px; }
+  .today-badge { font-size: 12px; }
   .slabel { font-size: 12px; margin-bottom: 14px; padding-bottom: 9px; }
   .macro-row { gap: 16px; margin-bottom: 28px; }
   .mcard { padding: 20px; border-radius: 8px; }
@@ -94,6 +149,13 @@ tr:hover td { background: var(--surface2); }
   .fname { font-size: 14px; margin-bottom: 3px; }
   .funit { font-size: 12px; margin-bottom: 11px; }
   .pill { font-size: 12px; padding: 3px 8px; }
+  .trend-row { gap: 16px; margin-bottom: 28px; }
+  .tchart { padding: 16px 18px 12px; border-radius: 8px; }
+  .tchart-label { font-size: 12px; }
+  .tchart-plot svg { height: 64px; }
+  .tchart-yaxis { font-size: 11px; min-width: 34px; }
+  .tchart-xaxis { font-size: 11px; }
+  .tchart-val { font-size: 18px; }
 }
 
 /* ── Extra-large / 4K TV (2200px+) ── */
@@ -109,6 +171,12 @@ tr:hover td { background: var(--surface2); }
   th { padding: 13px 20px; font-size: 14px; }
   td { padding: 14px 20px; font-size: 16px; }
   .foods-grid { grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 16px; padding: 24px; }
+  .trend-row { gap: 22px; }
+  .tchart { padding: 20px 24px 14px; }
+  .tchart-plot svg { height: 80px; }
+  .tchart-yaxis { font-size: 12px; min-width: 40px; }
+  .tchart-xaxis { font-size: 12px; }
+  .tchart-val { font-size: 22px; }
 }
 
 /* ── Tablet (681px – 900px) ── */
@@ -129,6 +197,9 @@ tr:hover td { background: var(--surface2); }
   .panel { border-radius: 5px; }
   td { padding: 7px 10px; font-size: 11px; }
   th { padding: 6px 10px; font-size: 9px; }
+  .trend-row { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .tchart-plot svg { height: 40px; }
+  .tchart-yaxis { font-size: 8px; min-width: 22px; }
 }
 
 /* ── Small phone (≤400px) ── */
@@ -136,8 +207,12 @@ tr:hover td { background: var(--surface2); }
   .macro-row { grid-template-columns: 1fr 1fr; gap: 6px; }
   .mval { font-size: 19px; }
   .mlabel { font-size: 9px; }
-  .tab { font-size: 10px; padding: 3px 8px; }
+  .date-current { font-size: 11px; padding: 5px 10px; }
+  .date-arrow { width: 28px; height: 28px; font-size: 18px; }
   .foods-grid { grid-template-columns: 1fr 1fr; }
   .fname { font-size: 11px; }
   .pill { font-size: 9px; padding: 1px 5px; }
+  .tchart-plot svg { height: 32px; }
+  .tchart-yaxis { font-size: 7px; min-width: 20px; }
+  .tchart-val { font-size: 13px; }
 }

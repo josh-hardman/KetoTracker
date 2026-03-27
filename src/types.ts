@@ -6,6 +6,10 @@ export interface Food {
   protein: number
   net_carbs: number
   calories: number
+  category: string | null
+  therapeutic_tier: number | null
+  therapeutic_note: string | null
+  therapeutic_tags: string[] | null
 }
 
 export interface DailyLog {

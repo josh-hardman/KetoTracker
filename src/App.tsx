@@ -7,6 +7,7 @@ import MacroCards from './components/MacroCards'
 import ProtocolPanel from './components/ProtocolPanel'
 import DailyLogTable from './components/DailyLogTable'
 import FoodGrid from './components/FoodGrid'
+import TrendCharts from './components/TrendCharts'
 import './App.css'
 
 function today() {
@@ -26,8 +27,8 @@ export default function App() {
 
     try {
       const [{ data: foodsData, error: fe }, { data: logsData, error: le }] = await Promise.all([
-        supabase.from('foods').select('id,name,unit,fat,protein,net_carbs,calories').order('name'),
-        supabase.from('daily_logs').select('date,servings,logged_at,foods(name,fat,protein,net_carbs,calories)').order('date', { ascending: false }).order('logged_at', { ascending: true })
+        supabase.from('foods').select('id,name,unit,fat,protein,net_carbs,calories,category,therapeutic_tier,therapeutic_note,therapeutic_tags').order('name'),
+        supabase.from('daily_logs').select('date,servings,logged_at,foods(name,fat,protein,net_carbs,calories,category,therapeutic_tier,therapeutic_note,therapeutic_tags)').order('date', { ascending: false }).order('logged_at', { ascending: true })
       ])
 
       if (fe) throw fe
@@ -71,16 +72,17 @@ export default function App() {
 
   const dates = [...new Set(logs.map(l => l.date))].sort((a, b) => b.localeCompare(a))
   if (!dates.includes(today())) dates.unshift(today())
-  const dateTabs = dates.slice(0, 7)
 
   return (
     <>
       <Header currentDate={today()} onRefresh={loadAll} loading={loading} />
       <div className="main">
-        <DateTabs dates={dateTabs} selectedDate={selectedDate} onSelect={setSelectedDate} />
+        <DateTabs dates={dates} selectedDate={selectedDate} onSelect={setSelectedDate} />
         <div className="slabel">macros</div>
         {error && <div className="err">Error: {error}</div>}
         <MacroCards totals={totals} />
+        <div className="slabel">14-day trend</div>
+        <TrendCharts logs={logs} />
         <div className="two-col">
           <ProtocolPanel />
           <DailyLogTable logs={filteredLogs} selectedDate={selectedDate} />
