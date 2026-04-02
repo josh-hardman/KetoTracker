@@ -10,6 +10,7 @@ export interface Food {
   therapeutic_tier: number | null
   therapeutic_note: string | null
   therapeutic_tags: string[] | null
+  sensitivity_level: 'severe' | 'moderate' | 'mild' | null
 }
 
 export interface DailyLog {

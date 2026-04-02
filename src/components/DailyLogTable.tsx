@@ -9,14 +9,29 @@ interface DailyLogTableProps {
   selectedDate: string
 }
 
+const SENSITIVITY: Record<string, { label: string; cls: string; tip: string }> = {
+  severe:   { label: 'Avoid',   cls: 'sens-severe',   tip: 'Severe: eliminate for 6+ months per ALCAT results' },
+  moderate: { label: 'Moderate', cls: 'sens-moderate', tip: 'Moderate: limit intake, rotate every 4+ days' },
+  mild:     { label: 'Rotate',  cls: 'sens-mild',     tip: 'Mild: rotate every 3–4 days per ALCAT results' },
+}
+
 export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps) {
   const isToday = selectedDate === todayMT()
   const title = isToday ? 'Logged today' : `Logged · ${fmtDate(selectedDate)}`
   const [tooltipIdx, setTooltipIdx] = useState<number | null>(null)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+
+  const hasSevere = logs.some(l => l.foods.sensitivity_level === 'severe')
 
   return (
     <div className="panel">
       <div className="phdr">{title}</div>
+      {hasSevere && !bannerDismissed && (
+        <div className="sens-banner">
+          <span>Your log contains foods flagged as severe sensitivities. Consider swapping these out.</span>
+          <button className="sens-banner-close" onClick={() => setBannerDismissed(true)}>×</button>
+        </div>
+      )}
       {logs.length === 0 ? (
         <div className="empty">Nothing logged for this day.</div>
       ) : (
@@ -39,6 +54,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
               const tc = tierClass(f.therapeutic_tier)
               const badge = tierBadge(f.therapeutic_tier)
               const hasTooltip = !!f.therapeutic_note
+              const sens = f.sensitivity_level ? SENSITIVITY[f.sensitivity_level] : null
 
               return (
                 <tr key={i} className={tc}>
@@ -63,6 +79,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
                       ) : null}
                       {f.name}
                       {s !== 1 && <span className="sbadge">×{s}</span>}
+                      {sens && <span className={`sens-pill ${sens.cls}`} title={sens.tip}>{sens.label}</span>}
                     </span>
                     {tooltipIdx === i && f.therapeutic_note && (
                       <div className="th-tooltip">

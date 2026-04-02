@@ -12,7 +12,7 @@ import TrendCharts from './components/TrendCharts'
 import { todayMT, toMTDate, sumMacros } from './tz'
 import './App.css'
 
-const FOOD_FIELDS = 'name,fat,protein,net_carbs,calories,category,therapeutic_tier,therapeutic_note,therapeutic_tags'
+const FOOD_FIELDS = 'name,fat,protein,net_carbs,calories,category,therapeutic_tier,therapeutic_note,therapeutic_tags,sensitivity_level'
 
 export default function App() {
   const [foods, setFoods] = useState<Food[]>([])
