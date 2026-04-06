@@ -52,7 +52,17 @@ function aggregateByDate(logs: DailyLog[]): DayTotals[] {
     map.set(l.date, d)
   }
 
-  return [...map.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-14)
+  // Build a full 14-day window ending today, filling gaps with zeros
+  const result: DayTotals[] = []
+  const today = new Date()
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i)
+    const key = d.toISOString().slice(0, 10)
+    result.push(map.get(key) || { date: key, cal: 0, fat: 0, pro: 0, carb: 0 })
+  }
+
+  return result
 }
 
 function ChartCard({ macroKey, label, unit, days }: { macroKey: MacroKey; label: string; unit: string; days: DayTotals[] }) {
