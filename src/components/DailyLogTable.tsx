@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { DailyLog } from '../types'
 import { todayMT, fmtDate, fmtLogTime } from '../tz'
 import { tierClass, tierBadge } from '../therapeutic'
-import { CAT_COLORS } from '../constants'
+import { CAT_COLORS, foodRatio } from '../constants'
 
 interface DailyLogTableProps {
   logs: DailyLog[]
@@ -21,6 +21,9 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
   const [tooltipIdx, setTooltipIdx] = useState<number | null>(null)
   const [bannerDismissed, setBannerDismissed] = useState(false)
 
+  // Chronological order (oldest first)
+  const sortedLogs = [...logs].reverse()
+
   const hasSevere = logs.some(l => l.foods.sensitivity_level === 'severe')
 
   return (
@@ -32,7 +35,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
           <button className="sens-banner-close" onClick={() => setBannerDismissed(true)}>×</button>
         </div>
       )}
-      {logs.length === 0 ? (
+      {sortedLogs.length === 0 ? (
         <div className="empty">Nothing logged for this day.</div>
       ) : (
         <div className="table-wrap">
@@ -45,16 +48,18 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
               <th className="r">Fat</th>
               <th className="r">Prot</th>
               <th className="r">Carbs</th>
+              <th className="r">Ratio</th>
             </tr>
           </thead>
           <tbody>
-            {logs.map((l, i) => {
+            {sortedLogs.map((l, i) => {
               const s = l.servings
               const f = l.foods
               const tc = tierClass(f.therapeutic_tier)
               const badge = tierBadge(f.therapeutic_tier)
               const hasTooltip = !!f.therapeutic_note
               const sens = f.sensitivity_level ? SENSITIVITY[f.sensitivity_level] : null
+              const { display: ratioDisplay, cls: ratioCls } = foodRatio(f.fat, f.protein, f.net_carbs)
 
               return (
                 <tr key={i} className={tc}>
@@ -99,6 +104,7 @@ export default function DailyLogTable({ logs, selectedDate }: DailyLogTableProps
                   <td className="r">{Math.round(f.fat * s)}g</td>
                   <td className="r">{Math.round(f.protein * s)}g</td>
                   <td className="r">{(f.net_carbs * s).toFixed(1)}g</td>
+                  <td className={`r food-ratio ${ratioCls}${ratioDisplay === '∞' ? ' fratio-inf' : ''}`}>{ratioDisplay}</td>
                 </tr>
               )
             })}

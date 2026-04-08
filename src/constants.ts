@@ -24,6 +24,17 @@ export const MACRO_META: { key: MacroKey; label: string; unit: string; shortUnit
 export const WIN_THRESHOLD = { min: 0.9, max: 1.1 }
 export const CARB_WIN_THRESHOLD = { min: 0.9, max: 1.0 }
 
+/** Per-food ratio display: { display, cls } */
+export function foodRatio(fat: number, protein: number, net_carbs: number): { display: string; cls: string } {
+  const denom = protein + net_carbs
+  if (denom === 0) return { display: '∞', cls: 'ratio-deep' }
+  const r = fat / denom
+  if (r >= 3.0) return { display: r.toFixed(2), cls: 'ratio-deep' }
+  if (r >= 2.5) return { display: r.toFixed(2), cls: 'ratio-ok'   }
+  if (r >= 2.0) return { display: r.toFixed(2), cls: 'ratio-warn' }
+  return { display: r.toFixed(2), cls: 'ratio-low' }
+}
+
 export const CAT_COLORS: Record<string, string> = {
   protein:    '#a07070',
   fat:        '#a08c5a',

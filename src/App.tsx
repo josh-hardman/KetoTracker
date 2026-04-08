@@ -9,7 +9,7 @@ import ProtocolPanel from './components/ProtocolPanel'
 import DailyLogTable from './components/DailyLogTable'
 import FoodGrid from './components/FoodGrid'
 import TrendCharts from './components/TrendCharts'
-import { todayMT, toMTDate, sumMacros } from './tz'
+import { todayMT, sumMacros } from './tz'
 import './App.css'
 
 const FOOD_FIELDS = 'name,fat,protein,net_carbs,calories,category,therapeutic_tier,therapeutic_note,therapeutic_tags,sensitivity_level'
@@ -35,12 +35,7 @@ export default function App() {
       if (le) throw le
 
       setFoods(foodsData || [])
-      // Remap dates to Mountain time so evening logs don't land on the next UTC day
-      const mapped = (logsData as unknown as DailyLog[] || []).map(l => ({
-        ...l,
-        date: l.created_at ? toMTDate(l.created_at) : l.date,
-      }))
-      setLogs(mapped)
+      setLogs((logsData as unknown as DailyLog[]) || [])
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : JSON.stringify(err)
       setError(message)
@@ -74,13 +69,13 @@ export default function App() {
       <Header currentDate={todayMT()} onRefresh={loadAll} loading={loading} />
       <div className="main">
         <DateTabs dates={dates} selectedDate={selectedDate} onSelect={setSelectedDate} />
-        <div className="slabel">macros</div>
         {error && <div className="err">Error: {error}</div>}
+        <div className="slabel">macros</div>
         <MacroCards totals={totals} />
         <div className="slabel">14-day trend</div>
         <TrendCharts logs={logs} />
         <div className="two-col">
-          <ProtocolPanel />
+          <ProtocolPanel totals={totals} logs={logs} />
           <DailyLogTable logs={filteredLogs} selectedDate={selectedDate} />
         </div>
         <div className="slabel">Food database</div>
