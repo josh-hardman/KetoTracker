@@ -119,6 +119,8 @@ tr.tier-3 td:first-child { box-shadow: inset 3px 0 0 var(--tier3); }
 .th-tooltip-note { font-size: 11px; color: var(--text); line-height: 1.5; }
 .th-tooltip-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
 .th-tag { font-size: 9px; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 3px; background: var(--tag-bg); color: var(--tier5); border: 1px solid var(--tag-border); }
+.food-search { width: 100%; padding: 7px 10px; font-size: 12px; font-family: inherit; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 5px; outline: none; }
+.food-search:focus { border-color: var(--accent, #888); }
 .empty { padding: 28px; text-align: center; color: var(--muted); font-size: 12px; }
 .loading { padding: 26px; text-align: center; color: var(--muted); font-size: 11px; letter-spacing: 0.06em; }
 .err { color: var(--carb); font-size: 12px; margin-bottom: 12px; padding: 9px 13px; background: rgba(184,90,72,0.06); border: 1px solid rgba(184,90,72,0.2); border-radius: 5px; }

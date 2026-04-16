@@ -1,15 +1,33 @@
+import { useState, useMemo } from 'react'
 import type { Food } from '../types'
 import { CAT_COLORS, foodRatio } from '../constants'
 
 export default function FoodGrid({ foods }: { foods: Food[] }) {
+  const [query, setQuery] = useState('')
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return foods
+    const q = query.toLowerCase()
+    return foods.filter(f => f.name.toLowerCase().includes(q))
+  }, [foods, query])
+
   return (
     <div className="panel" style={{ marginBottom: 24 }}>
-      <div className="phdr">Food database · {foods.length} items</div>
-      {foods.length === 0 ? (
-        <div className="empty">No foods yet.</div>
+      <div className="phdr">Food database · {filtered.length} items</div>
+      <div style={{ padding: '8px 14px 0' }}>
+        <input
+          type="text"
+          className="food-search"
+          placeholder="Search foods…"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+        />
+      </div>
+      {filtered.length === 0 ? (
+        <div className="empty">{query ? 'No matches.' : 'No foods yet.'}</div>
       ) : (
         <div className="foods-grid">
-          {foods.map(f => {
+          {filtered.map(f => {
             const { display, cls } = foodRatio(f.fat, f.protein, f.net_carbs)
             return (
               <div key={f.id} className="fcard">
